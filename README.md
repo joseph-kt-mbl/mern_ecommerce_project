@@ -1,1 +1,2 @@
 # mern_ecommerce_project
+reste passowrd functionalitie
