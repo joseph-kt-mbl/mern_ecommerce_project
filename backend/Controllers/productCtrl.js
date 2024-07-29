@@ -122,31 +122,92 @@ const deleteProduct = asyncHandler(
     }
 )
 
-const addToWishList = asyncHandler(async(req,res)=>{
-    const {id} = req.user
-    const {prdId} = req.body
-    if(!id || !prdId){
-        throw new Error("problem in IDs")
-    }
-    ValidateMongodbID(id)
-    ValidateMongodbID(prdId)
+const addToWishList = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    const { prdId } = req.body;
 
-    const product = await Product.findById(prdId)
-    if(!product){
-        throw new Error("There is No product with This id")
+    if (!id || !prdId) {
+        throw new Error("problem in IDs");
     }
-    const user = req.user
-     // Add user ID to likes array if it's not already there
-    if (!user.wishlist.includes(prdId)){
+
+    ValidateMongodbID(id);
+    ValidateMongodbID(prdId);
+
+    const product = await Product.findById(prdId);
+    if (!product) {
+        throw new Error("There is No product with This id");
+    }
+
+    const user = await User.findById(id);
+
+    // Add product ID to wishlist if it's not already there, otherwise remove it
+    if (!user.wishlist.includes(prdId)) {
         user.wishlist.push(prdId);
-    }else{
+    } else {
         user.wishlist = user.wishlist.filter(PRD_ID => PRD_ID.toString() !== prdId.toString());
-
     }
-    await user.save()
-    res.status(200).json(user)
 
-})
+    await user.save();
+
+    const USER = await User.findById(id).populate('wishlist').exec()
+    if(!USER){
+        throw new Error('Problem in populating USER')
+    }
+    res.status(200).json(USER);
+});
+
+const rating = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    const { prdId, rate , comment} = req.body;
+
+    if (!id || !prdId) {
+        return res.status(400).json({ message: "Problem in IDs" });
+    }
+
+    ValidateMongodbID(id);
+    ValidateMongodbID(prdId);
+
+    if (rate > 5 || rate < 1) {
+        return res.status(400).json({ message: "Invalid Rating" });
+    }
+
+    const product = await Product.findById(prdId);
+    if (!product) {
+        return res.status(404).json({ message: "No product found with this ID" });
+    }
+
+    const newRating = {
+        star: rate,
+        comment,
+        postedby: id
+    };
+
+    // Check if the user has already rated the product
+    const existingRatingIndex = product.ratings.findIndex(
+        (rating) => rating.postedby.toString() === id.toString()
+    );
+
+    if (existingRatingIndex !== -1) {
+        // Update existing rating
+        product.ratings[existingRatingIndex] = newRating
+    } else {
+        // Add new rating
+        product.ratings.push(newRating);
+    }
+
+    // Calculate the average rating
+    const totalRating = product.ratings.reduce((acc, current) => acc + current.star, 0);
+    const averageRating = totalRating / (product.ratings.length * 5);
+    product.totalrating = averageRating * 100;
+
+    await product.save();
+
+    // Optionally populate the postedby field
+    const populatedProduct = await Product.findById(prdId).populate('ratings.postedby').exec();
+
+    res.status(200).json(populatedProduct);
+});
+
 
 
 
@@ -156,5 +217,6 @@ module.exports = {
     getAllProducts,
     updateProduct,
     deleteProduct,
-    addToWishList
+    addToWishList,
+    rating
 }

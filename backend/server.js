@@ -11,6 +11,7 @@ const blogRouter = require('./Routes/blogRoute');
 const blogCategoryRouter = require('./Routes/blogCatRoute');
 const productCategoryRouter = require('./Routes/prodcategoryRoute');
 const brandRouter = require('./Routes/brandRoute')
+const couponRouter = require('./Routes/couponRoute')
 
 
 const { errorHandler, notFound } = require('./Middlewares/errorHandler');
@@ -33,6 +34,9 @@ app.use('/api/blog-category', blogCategoryRouter);
 
 // USE THE PRODUCT-CATEGORY ROUTER
 app.use('/api/product-category', productCategoryRouter);
+
+// USE THE COUPON ROUTER
+app.use('/api/coupon',couponRouter)
 
 // USE THE PRODUCT_ROUTER
 app.use('/api/product', productRouter);

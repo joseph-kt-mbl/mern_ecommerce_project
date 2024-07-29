@@ -21,14 +21,14 @@ var productSchema = new mongoose.Schema({
         type:Number,
         required:true,
     },
-    category:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Category"
-    },
     // category:{
-    //     type:String,
-    //     required:true
+    //     type:mongoose.Schema.Types.ObjectId,
+    //     ref:"PCategory"
     // },
+    category:{
+        type:String,
+        required:true
+    },
     brand:{
         type:String,
         required:true
@@ -46,10 +46,23 @@ var productSchema = new mongoose.Schema({
     },
     ratings:[
         {
-            star:Number,
+            star: {
+                type: Number,
+                required: true,
+                min: [1, 'Rating must be at least 1'],
+                max: [5, 'Rating must be at most 5']
+            },
+            comment:String,
             postedby:{type:mongoose.Schema.Types.ObjectId,ref:"User"}
         }
-    ]
+    ],
+    totalrating:{
+        type: Number,
+        default:1,
+        min: [1, 'Rating percent must be at least 1'],
+        max: [100, 'Rating percent must be at most 100']
+    }
+
 },
 {
     timestamps:true
