@@ -2,6 +2,8 @@ const Product = require('../Models/productModel')
 const slugify = require('slugify')
 
 const asyncHandler = require('express-async-handler');
+const {ValidateMongodbID} = require('../utils/ValidateMongodbId');
+
 
 
 const createProduct = asyncHandler(
@@ -22,6 +24,7 @@ const createProduct = asyncHandler(
 const getProduct = asyncHandler(
     async (req,res) => {
         const {id} = req.params
+        ValidateMongodbID(id)
         const foundProduct = await Product.findById(id)
         if(!foundProduct){
             throw new Error("Product Not Found!")
@@ -30,19 +33,6 @@ const getProduct = asyncHandler(
     }
 )
 
-// const getProductBySlug = asyncHandler(
-//     async (req,res) => {
-//         const {slug} = req.query
-//         if (!slug) {
-//             return res.status(400).json({ message: "Slug query parameter is required" });
-//         }
-//         const foundProduct = await Product.find({slug:slug})
-//         if(!foundProduct){
-//             throw new Error("no producs")
-//         }
-//         res.status(201).json(products)
-//     }
-// )
 
 const getAllProducts = asyncHandler(async (req, res) => {
     // filtring
@@ -98,6 +88,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     if (!id) {
         return res.status(400).json({ error: "No ID in the parameters" });
     }
+    ValidateMongodbID(id)
 
     // Optionally create a slug from the title if provided
     if (req.body.title) {
@@ -121,6 +112,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler(
     async (req,res) => {
         const {id} = req.params
+        ValidateMongodbID(id)
         const deletedPrd = await Product.findByIdAndDelete(id)
         if(!deleteProduct){
             throw new Error("Deleteing Product Faild")
@@ -136,7 +128,6 @@ const deleteProduct = asyncHandler(
 module.exports = {
     createProduct,
     getProduct,
-    // getProductBySlug,
     getAllProducts,
     updateProduct,
     deleteProduct
