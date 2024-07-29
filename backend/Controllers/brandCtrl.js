@@ -61,7 +61,7 @@ const getBrand = asyncHandler(async (req, res) => {
 });
 
 // Get all brands
-const getallBrand = asyncHandler(async (req, res) => {
+const getAllBrands = asyncHandler(async (req, res) => {
   try {
     const getallBrand = await Brand.find();
     res.json(getallBrand);
@@ -75,5 +75,5 @@ module.exports = {
   updateBrand,
   deleteBrand,
   getBrand,
-  getallBrand,
+  getAllBrands,
 };

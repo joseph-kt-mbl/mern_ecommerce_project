@@ -1,4 +1,5 @@
 const Product = require('../Models/productModel')
+const User = require('../Models/userModel')
 const slugify = require('slugify')
 
 const asyncHandler = require('express-async-handler');
@@ -121,7 +122,31 @@ const deleteProduct = asyncHandler(
     }
 )
 
+const addToWishList = asyncHandler(async(req,res)=>{
+    const {id} = req.user
+    const {prdId} = req.body
+    if(!id || !prdId){
+        throw new Error("problem in IDs")
+    }
+    ValidateMongodbID(id)
+    ValidateMongodbID(prdId)
 
+    const product = await Product.findById(prdId)
+    if(!product){
+        throw new Error("There is No product with This id")
+    }
+    const user = req.user
+     // Add user ID to likes array if it's not already there
+    if (!user.wishlist.includes(prdId)){
+        user.wishlist.push(prdId);
+    }else{
+        user.wishlist = user.wishlist.filter(PRD_ID => PRD_ID.toString() !== prdId.toString());
+
+    }
+    await user.save()
+    res.status(200).json(user)
+
+})
 
 
 
@@ -130,5 +155,6 @@ module.exports = {
     getProduct,
     getAllProducts,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    addToWishList
 }
