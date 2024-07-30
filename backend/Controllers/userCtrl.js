@@ -44,7 +44,10 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
-        if (user) {
+        if(!user){
+            res.status(400).json({ error: "Email not found.." });
+        }
+        if (user.role === 'user') {
             if(! await user.isPasswordMatched(password)){
             return res.status(400).json({ error: "Invalid password" });
             }
@@ -67,12 +70,46 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
                 token: generateToken(user._id)
             });
         } else {
-            res.status(400).json({ error: "Invalid email " });
+            res.status(400).json({ error: "you are an admin , This End point Was not made for you." });
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// admin login
+
+const loginAdmin = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    // check if user exists or not
+    const findAdmin = await User.findOne({ email });
+    if (findAdmin.role !== "admin") throw new Error("Not Authorised");
+    if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
+      const refreshToken = await generateRefreshToken(findAdmin?._id);
+      const updateuser = await User.findByIdAndUpdate(
+        findAdmin.id,
+        {
+          refreshToken: refreshToken,
+        },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+      res.json({
+        _id: findAdmin?._id,
+        firstname: findAdmin?.firstname,
+        lastname: findAdmin?.lastname,
+        email: findAdmin?.email,
+        mobile: findAdmin?.mobile,
+        token: generateToken(findAdmin?._id),
+      });
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  });
 
 // handle refresh Token
 const handleRefreshToken = asyncHandler(
@@ -318,5 +355,6 @@ module.exports = {
     logout,
     forgotPasswordToken,
     resetPassword,
-    serveResetPasswordPage
+    serveResetPasswordPage,
+    loginAdmin
 };

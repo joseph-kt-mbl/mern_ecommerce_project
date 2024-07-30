@@ -3,6 +3,8 @@ const User = require('../Models/userModel')
 
 const asyncHandler = require('express-async-handler');
 const {ValidateMongodbID} = require('../utils/ValidateMongodbId');
+const cloudinaryUploadImg = require('../utils/cloudinary');
+const { default: axios } = require('axios');
 
 
 const createBlog = asyncHandler(async (req, res) => {
@@ -216,6 +218,43 @@ const removeDislike = asyncHandler(async (req, res) => {
 });
 
 
+const uploadImages = asyncHandler(
+    async (req, res) => {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: "Problem in IDs" });
+        }
+
+        ValidateMongodbID(id);
+
+        const blog = await Blog.findById(id);
+        if (!blog) {
+            throw new Error(`No Blog With This ${id}!`);
+        }
+
+        try {
+            const uploader = (path) => cloudinaryUploadImg(path, 'images'); 
+            const urls = [];
+            const files = req.files;
+
+            for (const file of files) {
+                const newPath = await uploader(file.path);
+                urls.push(newPath.url);
+            }
+
+            blog.images = [...blog.images, ...urls];
+            await blog.save();
+
+            // Fetch the endpoint after uploading images
+            await axios.get(`http://localhost:${process.env.PORT}/delete-images`);
+            
+
+            res.status(200).json(blog);
+        } catch (error) {
+            res.status(400).json({ mssg: 'something went wrong!' });
+        }
+    }
+);
 
 
 
@@ -229,5 +268,6 @@ module.exports = {
     likeBlog,
     removeLike,
     dislikeBlog,
-    removeDislike
+    removeDislike,
+    uploadImages
 }

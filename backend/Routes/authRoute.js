@@ -16,12 +16,14 @@ const {
     logout,
     forgotPasswordToken,
     resetPassword,
-    serveResetPasswordPage
+    serveResetPasswordPage,
+    loginAdmin
 } = require('../Controllers/userCtrl')
 
 router.post('/register',createUser)
 router.post('/forgot',authMiddleware,forgotPasswordToken)
 router.post('/login',loginUserCtrl)
+router.post('/admin-login',loginAdmin)
 router.post('/logout',logout)
 router.post('/reset-password/:token',resetPassword)
 

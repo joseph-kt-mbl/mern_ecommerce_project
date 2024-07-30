@@ -27,14 +27,11 @@ var blogSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     }],
-    image:{
-        type:String,
-        default:"https://www.shutterstock.com/image-photo/blog-social-media-information-connect-260nw-451991974.jpg"
-    },
     author:{
         type:String,
         default:'Admin'
-    }
+    },
+    images: [],
 },{
     // toJSON:{
     //     virtuals:true

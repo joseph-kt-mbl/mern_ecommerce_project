@@ -23,6 +23,19 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+const path = require('path');
+
+const emptyImagesDirectory = require('./utils/removeAllFiles')
+
+
+const dir = path.join(__dirname,"/public/images/")
+
+app.get('/delete-images',(req,res) => {
+  emptyImagesDirectory(dir)
+  res.json({mssg:`Directory ${path.join(__dirname,"/public/images/")} is Empty`})
+})
+
+
 // USE THE AUTH_ROUTER
 app.use('/api/user', authRouter);
 

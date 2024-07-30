@@ -4,6 +4,9 @@ const slugify = require('slugify')
 
 const asyncHandler = require('express-async-handler');
 const {ValidateMongodbID} = require('../utils/ValidateMongodbId');
+const cloudinaryUploadImg = require('../utils/cloudinary');
+const { default: axios } = require('axios');
+
 
 
 
@@ -209,6 +212,44 @@ const rating = asyncHandler(async (req, res) => {
 });
 
 
+const uploadImages = asyncHandler(
+    async (req, res) => {
+   
+
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: "Problem in IDs" });
+        }
+
+        ValidateMongodbID(id);
+
+        const prd = await Product.findById(id);
+        if (!prd) {
+            throw new Error(`No Product With This ${id}!`);
+        }
+
+        try {
+            const uploader = (path) => cloudinaryUploadImg(path, 'images');
+            const urls = [];
+            const files = req.files;
+
+            for (const file of files) {
+                const newPath = await uploader(file.path);
+                urls.push(newPath.url);
+            }
+
+            prd.images = [...prd.images, ...urls];
+            await prd.save();
+
+            await axios.get(`http://localhost:${process.env.PORT}/delete-images`);
+
+            res.status(200).json(prd);
+        } catch (error) {
+            res.status(400).json({ mssg: 'something went wrong!' });
+        }
+    }
+);
+
 
 
 module.exports = {
@@ -218,5 +259,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     addToWishList,
-    rating
+    rating,
+    uploadImages
 }
