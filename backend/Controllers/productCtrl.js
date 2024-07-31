@@ -125,40 +125,6 @@ const deleteProduct = asyncHandler(
     }
 )
 
-const addToWishList = asyncHandler(async (req, res) => {
-    const { id } = req.user;
-    const { prdId } = req.body;
-
-    if (!id || !prdId) {
-        throw new Error("problem in IDs");
-    }
-
-    ValidateMongodbID(id);
-    ValidateMongodbID(prdId);
-
-    const product = await Product.findById(prdId);
-    if (!product) {
-        throw new Error("There is No product with This id");
-    }
-
-    const user = await User.findById(id);
-
-    // Add product ID to wishlist if it's not already there, otherwise remove it
-    if (!user.wishlist.includes(prdId)) {
-        user.wishlist.push(prdId);
-    } else {
-        user.wishlist = user.wishlist.filter(PRD_ID => PRD_ID.toString() !== prdId.toString());
-    }
-
-    await user.save();
-
-    const USER = await User.findById(id).populate('wishlist').exec()
-    if(!USER){
-        throw new Error('Problem in populating USER')
-    }
-    res.status(200).json(USER);
-});
-
 const rating = asyncHandler(async (req, res) => {
     const { id } = req.user;
     const { prdId, rate , comment} = req.body;
@@ -258,7 +224,6 @@ module.exports = {
     getAllProducts,
     updateProduct,
     deleteProduct,
-    addToWishList,
     rating,
     uploadImages
 }

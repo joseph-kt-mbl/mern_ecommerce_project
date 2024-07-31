@@ -5,7 +5,6 @@ const {
     getAllProducts,
     updateProduct,
     deleteProduct,
-    addToWishList,
     rating,
     uploadImages
 } = require('../Controllers/productCtrl')
@@ -34,7 +33,7 @@ router.get('/:id',getProduct)
 router.patch('/update/:id',authMiddleware,isAdmin,updateProduct)
 
 
-router.patch('/wishlist',authMiddleware,addToWishList)
+
 router.patch('/rating',authMiddleware,rating)
 
 router.get('/', getAllProducts)

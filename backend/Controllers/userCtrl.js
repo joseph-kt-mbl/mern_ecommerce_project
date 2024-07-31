@@ -1,5 +1,9 @@
 const { generateToken } = require('../Config/jwtToken');
 const User = require('../Models/userModel');
+const Product = require('../Models/productModel')
+const Order = require("../Models/orderModel");
+const Cart = require("../Models/cartModel");
+const Coupon = require("../models/couponModel");
 const asyncHandler = require('express-async-handler');
 const {ValidateMongodbID} = require('../utils/ValidateMongodbId');
 const { generateRefreshToken } = require('../Config/refreshToken.JS');
@@ -341,6 +345,72 @@ const serveResetPasswordPage = asyncHandler(async (req, res) => {
     res.sendFile(filePath);
 });
 
+
+
+const addToWishList = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    const { prdId } = req.body;
+
+    if (!id || !prdId) {
+        throw new Error("problem in IDs");
+    }
+
+    ValidateMongodbID(id);
+    ValidateMongodbID(prdId);
+
+    const product = await Product.findById(prdId);
+    if (!product) {
+        throw new Error("There is No product with This id");
+    }
+
+    const user = await User.findById(id);
+
+    // Add product ID to wishlist if it's not already there, otherwise remove it
+    if (!user.wishlist.includes(prdId)) {
+        user.wishlist.push(prdId);
+    } else {
+        user.wishlist = user.wishlist.filter(PRD_ID => PRD_ID.toString() !== prdId.toString());
+    }
+
+    await user.save();
+
+    const USER = await User.findById(id).populate('wishlist').exec()
+    if(!USER){
+        throw new Error('Problem in populating USER')
+    }
+    res.status(200).json(USER);
+});
+
+// save user address
+const saveAddress = asyncHandler(async(req,res)=>{
+    const id = req.user._id
+    if (!id ) {
+        throw new Error("problem in ID");
+    }
+    ValidateMongodbID(id);
+
+    const {address} = req.body
+    
+    const user = await User.findById(id)
+    if(!user){
+        throw new Error("No user with ths id")
+    }
+    user.address = address
+    try{
+        await user.save()
+        res.status(200).json(user)
+    }catch(error){
+        throw new Error("Updating User addres Faild !")
+    }
+    
+})
+
+const userCart = asyncHandler(async(req,res)=>{
+    const { cart } = req.body;
+    const { _id } = req.user;
+    ValidateMongodbID(_id);
+    
+})
 module.exports = {
     createUser,
     loginUserCtrl,
@@ -356,5 +426,7 @@ module.exports = {
     forgotPasswordToken,
     resetPassword,
     serveResetPasswordPage,
-    loginAdmin
+    loginAdmin,
+    addToWishList,
+    saveAddress
 };

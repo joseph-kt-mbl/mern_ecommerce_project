@@ -43,17 +43,18 @@ var userSchema = new mongoose.Schema({
     cart: {
         type: Array,
         default: [],
-      },
-      address: {
+    },
+    address: {
         type: String,
-      },
-      wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-      refreshToken:{
+        default: "[Street Address], [City Name], [State Code] [ZIP Code]"
+    },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    refreshToken:{
         type:String,
-      },
-      passwordChangedAt:Date,
-      passwordResetToken:String,
-      passwordResetExpires: Date
+    },
+    passwordChangedAt:Date,
+    passwordResetToken:String,
+    passwordResetExpires: Date
     },
     {
         timestamps:true

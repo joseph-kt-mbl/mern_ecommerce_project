@@ -17,7 +17,10 @@ const {
     forgotPasswordToken,
     resetPassword,
     serveResetPasswordPage,
-    loginAdmin
+    loginAdmin,
+    addToWishList,
+    saveAddress,
+    userCart
 } = require('../Controllers/userCtrl')
 
 router.post('/register',createUser)
@@ -26,12 +29,17 @@ router.post('/login',loginUserCtrl)
 router.post('/admin-login',loginAdmin)
 router.post('/logout',logout)
 router.post('/reset-password/:token',resetPassword)
+router.post('/cart',userCart)
 
 // routes four admin
 router.get('/allusers',authMiddleware,isAdmin,getAllUsers)
 router.get('/:id',authMiddleware,isAdmin,getUserByID)
 router.get('/getUser',authMiddleware,isAdmin,getUser)
 router.delete('/:id',authMiddleware,deleteUser)
+
+router.patch('/wishlist',authMiddleware,addToWishList)
+router.patch('/save-address',authMiddleware,saveAddress)
+
 
 router.patch('/:id',updateUser)
 router.patch('/block-user/:id',authMiddleware,isAdmin,blockUser)
