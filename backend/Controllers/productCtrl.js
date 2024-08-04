@@ -4,7 +4,10 @@ const slugify = require('slugify')
 
 const asyncHandler = require('express-async-handler');
 const {ValidateMongodbID} = require('../utils/ValidateMongodbId');
-const cloudinaryUploadImg = require('../utils/cloudinary');
+const {
+    cloudinaryUploadImg,
+    cloudinaryDeleteImg
+}= require('../utils/cloudinary');
 const { default: axios } = require('axios');
 
 
@@ -216,8 +219,15 @@ const uploadImages = asyncHandler(
     }
 );
 
-
-
+const deleteImages = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+      const deleted = cloudinaryDeleteImg(id, "images");
+      res.json({ message: "Deleted" });
+    } catch (error) {
+      throw new Error(error);
+    }
+  });
 
 
 module.exports = {
@@ -227,5 +237,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     rating,
-    uploadImages
+    uploadImages,
+    deleteImages
 }

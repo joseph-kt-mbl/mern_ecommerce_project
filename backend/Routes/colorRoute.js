@@ -5,8 +5,8 @@ const {
   deleteColor,
   getColor,
   getallColor,
-} = require("../controller/colorCtrl");
-const { authMiddleware, isAdmin } = require("../middlewares/authMiddleware");
+} = require("../Controllers/colorCtrl");
+const { authMiddleware, isAdmin } = require("../Middlwares/authMiddleware");
 const router = express.Router();
 
 router.post("/", authMiddleware, isAdmin, createColor);

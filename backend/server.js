@@ -13,6 +13,8 @@ const productCategoryRouter = require('./Routes/prodcategoryRoute');
 const brandRouter = require('./Routes/brandRoute')
 const couponRouter = require('./Routes/couponRoute')
 const colorRouter = require("./Routes/colorRoute");
+const enqRouter = require("./Routes/enqRoute");
+const uploadRouter = require("./Routes/uploadRoute");
 
 
 const { errorHandler, notFound } = require('./Middlewares/errorHandler');
@@ -60,6 +62,12 @@ app.use('/api/blog', blogRouter);
 
 // USE THE COLOR ROUTER
 app.use("/api/color", colorRouter);
+
+// USE THE ENQUITY ROUTER
+app.use("/api/enquiry", enqRouter);
+
+// USE THE UPLOAD ROUTER
+app.use("/api/upload", uploadRouter);
 
 app.use(notFound);
 app.use(errorHandler);
